@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+    --color-primary: #2563eb;
+    --color-secondary: #1e40af;
+    --color-accent: #f59e0b;
+    --color-background: #ffffff;
+    --color-text: #1f2937;
+    --color-light: #f8fafc;
+    --color-purple: #7c3aed;
+    --color-pink: #ec4899;
+    --color-orange: #ea580c;
+    --color-success: #059669;
+    --color-neutral: #6b7280;
+    --font-header: 'Poppins', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+/* Custom animations */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(255, 107, 107, 0.6);
+    }
+}
+
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(0.3) rotate(-10deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05) rotate(5deg);
+    }
+
+    70% {
+        transform: scale(0.9) rotate(-2deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+    background-size: 400% 400%;
+    animation: gradient-shift 8s ease infinite;
+}
+
+.animate-bounce-in {
+    animation: bounce-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-primary {
+    background: linear-gradient(-45deg, #2563eb, #1e40af, #7c3aed, #3b82f6);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+}
+
+.bg-gradient-accent {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
