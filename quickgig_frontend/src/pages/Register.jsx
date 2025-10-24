@@ -82,8 +82,8 @@ function Register() {
         );
         
         if (success) {
-            // Redirect to dashboard instead of login
-            navigate("/dashboard");
+            // Redirect to home instead of dashboard
+            navigate("/");
         }
     };
 

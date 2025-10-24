@@ -92,7 +92,7 @@ const CategoryPreview = () => {
             clearInterval(timer);
             clearInterval(rotateTimer);
         };
-    }, []);
+    }, [eventPackages.length]);
 
     return (
         <div className="py-20 bg-gradient-to-b from-white to-light">
@@ -130,13 +130,6 @@ const CategoryPreview = () => {
                             )}
 
                             <div className={`${pkg.color} text-white relative h-full`}>
-                                {/* Background Pattern */}
-                                <div className="absolute inset-0 opacity-10">
-                                    <div className="absolute top-6 right-6 text-8xl transform rotate-12">
-                                        {pkg.icon}
-                                    </div>
-                                </div>
-
                                 {/* Content */}
                                 <div className="relative z-10 p-8 h-full flex flex-col">
                                     {/* Header */}

@@ -6,6 +6,30 @@ const useBookingStore = create((set) => ({
   slots: [],
   loading: false,
   error: null,
+  recommendedPackages: [],
+
+  // Add recommended package from AI chat
+  addRecommendedPackage: (package_) => {
+    set((state) => ({
+      recommendedPackages: [...state.recommendedPackages, {
+        id: Date.now(),
+        ...package_,
+        addedAt: new Date().toISOString()
+      }]
+    }));
+  },
+
+  // Remove recommended package
+  removeRecommendedPackage: (packageId) => {
+    set((state) => ({
+      recommendedPackages: state.recommendedPackages.filter(p => p.id !== packageId)
+    }));
+  },
+
+  // Clear all recommended packages
+  clearRecommendedPackages: () => {
+    set({ recommendedPackages: [] });
+  },
 
   // Get clientId safely from localStorage
   getClientId: () => {

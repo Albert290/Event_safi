@@ -1,4 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import useAuthStore from "./stores/authstore";
 import Navbar from "./components/layouts/Navbar";
 import Footer from "./components/layouts/Footer";
 import Home from "./pages/Home";
@@ -34,6 +36,12 @@ function Layout() {
 function App() {
   const location = useLocation();
   const hideFooter = ["/register", "/login"].includes(location.pathname);
+  const initializeAuth = useAuthStore((state) => state.initializeAuth);
+
+  // Initialize auth from localStorage on app startup
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   return (
     <>

@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Send, MessageCircle } from 'lucide-react';
+import { eventPackages, getPackageRecommendation, suggestUpgrade } from '../../data/eventPackages';
+import useBookingStore from '../../stores/bookingStore';
+import RecommendedPackages from './RecommendedPackages';
 
 const AIChatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +15,16 @@ const AIChatbot = () => {
     ]);
     const [inputMessage, setInputMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const messagesEndRef = useRef(null);
+    const addRecommendedPackage = useBookingStore((state) => state.addRecommendedPackage);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, isTyping]);
 
     const quickQuestions = [
         "Planning a wedding for 200 guests",
@@ -48,35 +61,105 @@ const AIChatbot = () => {
     const generateAIResponse = (userMessage) => {
         const lowerMessage = userMessage.toLowerCase();
         
+        // Extract budget from message (e.g., "50000", "50k", "ksh 50000")
+        const budgetMatch = userMessage.match(/(\d+(?:,\d+)?)\s*(k|ksh)?/i);
+        let budget = null;
+        if (budgetMatch) {
+            budget = parseInt(budgetMatch[1].replace(/,/g, '')) * (budgetMatch[2]?.toLowerCase() === 'k' ? 1000 : 1);
+        }
+
+        // Detect event type
+        let eventType = null;
+        let eventResponse = '';
+
         if (lowerMessage.includes('wedding')) {
-            return "💒 Congratulations on your upcoming wedding! 🎉\n\nOur Dream Wedding Package is PERFECT for you:\n✅ Professional Photography & Videography\n✅ Live DJ & Premium Sound\n✅ Elegant Decorations & Flowers\n✅ Gourmet Catering\n✅ Master of Ceremonies\n✅ Bridal Transport\n\n💰 Starting at KSh 150,000 (Save 40% vs separate bookings!)\n\nHow many guests are you expecting? I'll customize the perfect package for your special day! 💕";
+            eventType = 'wedding';
+            eventResponse = "💒 Congratulations on your upcoming wedding! �\n\n";
+        } else if (lowerMessage.includes('birthday')) {
+            eventType = 'birthday';
+            eventResponse = "🎂 Birthday celebrations are our specialty! �\n\n";
+        } else if (lowerMessage.includes('harambee')) {
+            eventType = 'harambee';
+            eventResponse = "🤝 Harambee events require special expertise - and we've got you covered!\n\n";
+        } else if (lowerMessage.includes('corporate')) {
+            eventType = 'corporate';
+            eventResponse = "🏢 Elevate your business image with our event services!\n\n";
+        } else if (lowerMessage.includes('funeral')) {
+            eventType = 'funeral';
+            eventResponse = "🕊️ During this difficult time, let us handle everything with dignity and compassion.\n\n";
+        } else if (lowerMessage.includes('road trip') || lowerMessage.includes('trip')) {
+            eventType = 'roadtrip';
+            eventResponse = "🚐 Ready for an adventure? Our Road Trip Packages create unforgettable memories!\n\n";
         }
-        
-        if (lowerMessage.includes('birthday')) {
-            return "🎂 Birthday celebrations are our specialty! 🎈\n\nOur Birthday Celebration Package includes:\n✅ Event Photography\n✅ DJ & Entertainment\n✅ Custom Decorations\n✅ Delicious Catering\n✅ Party Games & Activities\n✅ Cake Coordination\n\n💰 Starting at KSh 35,000 (Save 35%!)\n\nWhat's the age group and how many guests? Let me create an unforgettable celebration! 🎊";
+
+        // If event type detected, provide budget-aware recommendations
+        if (eventType) {
+            const pkg = Object.values(eventPackages).find(p => 
+                p.name.toLowerCase().includes(eventType)
+            );
+
+            if (budget && pkg) {
+                // Budget-aware recommendation
+                const recommendation = getPackageRecommendation(eventType, budget);
+                if (recommendation) {
+                    eventResponse += `💡 ${recommendation.suggestion}\n\n`;
+                    eventResponse += `📦 ${recommendation.name}\n`;
+                    eventResponse += `💰 KSh ${recommendation.price.toLocaleString()}\n\n`;
+                    eventResponse += `What's included:\n`;
+                    eventResponse += recommendation.features.join('\n');
+                    eventResponse += '\n\n';
+
+                    // Add to booking store for display
+                    addRecommendedPackage({
+                        name: recommendation.name,
+                        price: recommendation.price,
+                        description: recommendation.suggestion,
+                        features: recommendation.features,
+                        tier: recommendation.tier,
+                        eventType: eventType
+                    });
+
+                    // Suggest upgrade if applicable
+                    const upgrade = suggestUpgrade(eventType, budget);
+                    if (upgrade) {
+                        eventResponse += `\n${upgrade.message}\n`;
+                        eventResponse += `Additional features:\n${upgrade.additionalFeatures.join('\n')}`;
+                    }
+                }
+            } else if (pkg) {
+                // No budget specified, show all tiers
+                const tiers = pkg.tiers;
+                eventResponse += "We have options for every budget!\n\n";
+                
+                Object.values(tiers).forEach((tier) => {
+                    eventResponse += `${tier.name} - KSh ${tier.price.toLocaleString()}\n`;
+                    eventResponse += `${tier.description}\n\n`;
+                    
+                    // Add each tier to booking store
+                    addRecommendedPackage({
+                        name: tier.name,
+                        price: tier.price,
+                        description: tier.description,
+                        features: tier.features,
+                        eventType: eventType
+                    });
+                });
+
+                eventResponse += "What's your budget? I'll recommend the perfect package! 💰";
+            }
+
+            return eventResponse;
         }
-        
-        if (lowerMessage.includes('harambee')) {
-            return "🤝 Harambee events require special expertise - and we've got you covered!\n\nOur Harambee Package ensures success:\n✅ Professional MC & Coordination\n✅ Quality Sound System\n✅ Community Catering\n✅ Tent Setup & Seating\n✅ Security & Crowd Management\n✅ Fundraising Support\n\n💰 Starting at KSh 45,000 (Complete solution!)\n\nWhat's your fundraising goal? I'll help you organize an event that inspires generosity! 💪";
+
+        // Handle budget inquiry without specific event
+        if (lowerMessage.includes('budget') || (lowerMessage.includes('ksh') && !eventType) || lowerMessage.includes('cost') || lowerMessage.includes('price')) {
+            if (budget) {
+                return `💰 Great! With a budget of KSh ${budget.toLocaleString()}, you have wonderful options!\n\n📝 What type of event are you planning?\n\n🎯 Tell me:\n1️⃣ Wedding, Birthday, Corporate, Harambee, Funeral, or Road Trip?\n2️⃣ How many guests?\n3️⃣ Any specific requirements?\n\nI'll show you exactly what's possible with your budget! 🎉`;
+            }
+            return "💰 Smart question! I'll maximize every shilling for you!\n\nOur packages save you 30-40% compared to booking separately. Here's why:\n\n🎯 Bulk pricing with trusted vendors\n🎯 No coordination headaches\n🎯 Quality guaranteed\n🎯 One point of contact\n\nWhat's your total budget and event type? I'll show you exactly what's possible! 💪";
         }
-        
-        if (lowerMessage.includes('corporate')) {
-            return "🏢 Elevate your business image with our Corporate Event Package!\n\nProfessional services included:\n✅ Premium AV Equipment\n✅ Corporate Catering\n✅ Event Photography\n✅ Registration Management\n✅ Security Services\n✅ Transport Coordination\n\n💰 Starting at KSh 80,000 (Professional results guaranteed!)\n\nWhat type of corporate event? Product launch, team building, or conference? Let's make it impressive! 🚀";
-        }
-        
-        if (lowerMessage.includes('funeral')) {
-            return "🕊️ During this difficult time, let us handle everything with dignity and compassion.\n\nOur Funeral Service Package:\n✅ Respectful Catering\n✅ Sound System for Tributes\n✅ Tent & Seating\n✅ Transport Coordination\n✅ Security & Management\n✅ Memorial Photography\n\n💰 Starting at KSh 60,000 (Compassionate service)\n\nWe're here to support you. How many people are expected? We'll ensure everything is handled respectfully. 🙏";
-        }
-        
-        if (lowerMessage.includes('road trip') || lowerMessage.includes('trip')) {
-            return "🚐 Ready for an adventure? Our Road Trip Package creates unforgettable memories!\n\nAll-inclusive adventure:\n✅ Reliable Transport & Driver\n✅ Accommodation Booking\n✅ Activity Coordination\n✅ Meal Planning\n✅ Safety & First Aid\n✅ Photography Services\n\n💰 Starting at KSh 25,000 per person\n\nWhere do you want to explore? Maasai Mara, Coast, or Mount Kenya? Let's plan your perfect getaway! 🏔️";
-        }
-        
-        if (lowerMessage.includes('budget') || lowerMessage.includes('ksh') || lowerMessage.includes('cost')) {
-            return "💰 Smart question! I'll maximize every shilling for you!\n\nOur packages save you 30-40% compared to booking separately. Here's why:\n\n🎯 Bulk pricing with trusted vendors\n🎯 No coordination headaches\n🎯 Quality guaranteed\n🎯 One point of contact\n\nWhat's your total budget and event type? I'll show you exactly what's possible and how to get the most value! 💪";
-        }
-        
-        return "🎉 Welcome to Events-Safi! I'm here to make your event planning effortless and affordable!\n\n🎯 Tell me:\n1️⃣ What event are you planning?\n2️⃣ How many guests?\n3️⃣ Your budget range?\n4️⃣ Preferred date?\n\nI'll instantly recommend the perfect package that saves you money and stress! Our clients save an average of 40% with our all-inclusive packages. Let's create something amazing together! ✨";
+
+        return "🎉 Welcome to Events-Safi! I'm here to make your event planning effortless and affordable!\n\n🎯 Tell me:\n1️⃣ What event are you planning? (Wedding, Birthday, Corporate, Harambee, Funeral, Road Trip)\n2️⃣ Your budget? (e.g., 50000 or 50k)\n3️⃣ How many guests?\n4️⃣ Preferred date?\n\nI'll instantly recommend the perfect package that saves you money and stress! Our clients save an average of 40% with our all-inclusive packages. Let's create something amazing together! ✨";
     };
 
     return (
@@ -138,6 +221,7 @@ const AIChatbot = () => {
                                 </div>
                             </div>
                         )}
+                        <div ref={messagesEndRef} />
                     </div>
 
                     {/* Quick Questions */}
