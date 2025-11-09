@@ -1,27 +1,32 @@
 from rest_framework import permissions
 
-
-class IsProvider(permissions.BasePermission):
-    """Check if user has a service provider profile"""
-    
-    def has_permission(self, request, view):
-        return (
-            request.user and 
-            request.user.is_authenticated and 
-            hasattr(request.user, 'provider_profile')
-        )
-
-
-class IsProviderOwner(permissions.BasePermission):
-    """Check if user owns the provider profile"""
-    
+class IsEventOwner(permissions.BasePermission):
+    """Allow only event owners to edit their events"""
     def has_object_permission(self, request, view, obj):
-        # obj is ServiceProvider
+        if request.method in permissions.SAFE_METHODS:
+            return True
         return obj.user == request.user
 
+class IsVendorOwner(permissions.BasePermission):
+    """Allow only vendor owners to edit their listings"""
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.user == request.user
 
 class IsOwner(permissions.BasePermission):
-    """Check if user owns the resource"""
-    
+    """
+    Custom permission to only allow owners of an object to view or edit it.
+    Assumes the model instance has a 'user' attribute.
+    """
     def has_object_permission(self, request, view, obj):
-        return obj.user == request.user or obj == request.user
+        # For a booking, the owner is the user who created the event
+        if hasattr(obj, 'event'):
+            return obj.event.user == request.user
+        # For a payment, the owner is the user who made the booking
+        if hasattr(obj, 'booking'):
+            return obj.booking.event.user == request.user
+        # For a review, the owner is the user who wrote it
+        if hasattr(obj, 'user'):
+            return obj.user == request.user
+        return False
