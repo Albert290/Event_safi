@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django import forms
-from .models import User, ServiceProvider
+from .models import User
 
 
 class UserCreationForm(forms.ModelForm):
@@ -72,20 +72,3 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email', 'name')
     ordering = ('email',)
     filter_horizontal = ('groups', 'user_permissions')
-
-
-@admin.register(ServiceProvider)
-class ServiceProviderAdmin(admin.ModelAdmin):
-    list_display = ('business_name', 'category', 'location', 'is_verified', 'avg_rating', 'created_at')
-    list_filter = ('is_verified', 'category', 'location')
-    search_fields = ('business_name', 'user__email', 'user__name')
-    readonly_fields = ('created_at', 'updated_at', 'avg_rating', 'total_reviews')
-    
-    fieldsets = (
-        ('User Account', {'fields': ('user',)}),
-        ('Business Information', {'fields': ('business_name', 'category', 'description', 'location')}),
-        ('Contact', {'fields': ('phone',)}),
-        ('Pricing', {'fields': ('base_price', 'currency')}),
-        ('Verification & Ratings', {'fields': ('is_verified', 'avg_rating', 'total_reviews')}),
-        ('Timestamps', {'fields': ('created_at', 'updated_at')}),
-    )

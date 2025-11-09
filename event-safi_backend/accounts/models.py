@@ -57,35 +57,3 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-
-class ServiceProvider(models.Model):
-    """Service providers (MCs, caterers, venues, decorators)"""
-    
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='provider_profile')
-    category = models.ForeignKey('services.Category', on_delete=models.PROTECT, related_name='providers')
-    
-    business_name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=20)
-    description = models.TextField()
-    location = models.CharField(max_length=255)
-    
-    base_price = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, default='KES')
-    
-    is_verified = models.BooleanField(default=False)
-    avg_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
-    total_reviews = models.IntegerField(default=0)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        db_table = 'service_providers'
-        indexes = [
-            models.Index(fields=['category', 'location']),
-            models.Index(fields=['is_verified', 'avg_rating']),
-        ]
-        
-    def __str__(self):
-        return self.business_name
