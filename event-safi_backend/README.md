@@ -144,11 +144,11 @@ This API uses **JSON Web Tokens (JWT)** for authentication.
   - **Response:**
 
     ```json
-    {
-      "access": "<new_access_token>"
-    }
 
-  ```
+      {
+        "access": "<new_access_token>"
+      }
+      ```
 
 ---
 
