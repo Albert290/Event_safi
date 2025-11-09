@@ -147,6 +147,7 @@ This API uses **JSON Web Tokens (JWT)** for authentication.
     {
       "access": "<new_access_token>"
     }
+
   ```
 
 ---
