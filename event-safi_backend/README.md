@@ -308,9 +308,29 @@ The API uses standard HTTP status codes to indicate the success or failure of a 
 
 ### 7. AI Assistant
 
-| Method | Endpoint                   | Description                               |
-|--------|----------------------------|-------------------------------------------|
-| `POST` | `/api/ai/recommendations/` | Interact with the conversational AI assistant. |
+| Method | Endpoint                         | Description                                       |
+|--------|----------------------------------|---------------------------------------------------|
+| `POST` | `/api/ai/recommendations/`       | Interact with the conversational AI assistant.    |
+| `POST` | `/api/ai/recommendations/reset/` | Clears the AI chat history for the current user.  |
+
+- **Reset Chat (`POST /api/ai/recommendations/reset/`)**
+
+  This endpoint clears the entire conversation history for the authenticated user. It requires no request body.
+
+  - **Request:** `POST /api/ai/recommendations/reset/`
+  - **Headers:**
+
+    ``` postman
+    Authorization: Bearer <your_access_token>
+    ```
+
+  - **Response (`200 OK`):**
+
+    ```json
+    {
+      "message": "Chat memory has been reset."
+    }
+    ```
 
 - **AI Assistant (`POST /api/ai/recommendations/`) Request Body:**
 
