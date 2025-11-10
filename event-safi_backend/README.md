@@ -45,6 +45,26 @@ This guide will walk you through the basic steps to register, authenticate, and 
     pip install -r requirements.txt
   ```
 
+### Set Up AI Assistant (Gemini API Key)
+
+To use the AI-powered vendor recommendation feature, you need a Gemini API key.
+
+1. **Get an API Key:**
+    - Go to [Google AI Studio](https://aistudio.google.com/app/apikey).
+    - Click **"Create API key"** and copy your new key.
+
+2. **Create a `.env` file:**
+    - In the root directory of the project (`event-safi_backend/`), create a new file named `.env`.
+
+3. **Add the key to the `.env` file:**
+    - Open the `.env` file and add the following line, replacing `your_api_key_here` with the key you copied:
+
+      ```txt
+      GEMINI_API_KEY=your_api_key_here
+      ```
+
+The application will automatically load this key to power the AI assistant.
+
 **Base URL:** All API endpoints are prefixed with your server's domain. For local development, this will be `http://127.0.0.1:8000/`.
 
 ### Step 1: Register a New User
