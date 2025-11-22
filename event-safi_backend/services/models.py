@@ -9,6 +9,10 @@ class ServiceCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'Service Categories'
+
     def __str__(self):
         return self.name
 
@@ -24,6 +28,9 @@ class Service(models.Model):
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']  # Newest first
 
     def __str__(self):
         return self.name
