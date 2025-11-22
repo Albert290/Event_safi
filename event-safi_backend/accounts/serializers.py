@@ -48,3 +48,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'name', 'phone', 'profile_picture', 'created_at']
         read_only_fields = ['id', 'email', 'created_at']
+    
+    def validate_phone(self, value):
+        """Validate phone number format"""
+        if value and not value.replace('+', '').replace('-', '').replace(' ', '').isdigit():
+            raise serializers.ValidationError("Phone number must contain only digits, spaces, + or -")
+        return value

@@ -72,13 +72,18 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
-    """Get and update user profile"""
+class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
+    """Get, update, and delete user profile"""
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_object(self):
         return self.request.user
+    
+    def perform_destroy(self, instance):
+        """Soft delete - deactivate user account instead of hard delete"""
+        instance.is_active = False
+        instance.save()
 
 
 class DashboardView(APIView):
