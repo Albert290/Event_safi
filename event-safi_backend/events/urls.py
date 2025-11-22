@@ -5,7 +5,7 @@ from .views import EventViewSet, EventTypeViewSet
 
 router = DefaultRouter()
 router.register(r'events', EventViewSet, basename='event')
-router.register(r'events/types', EventTypeViewSet, basename='event-type')
+router.register(r'event-types', EventTypeViewSet, basename='event-type')
 
 urlpatterns = [
     path('', include(router.urls)),
