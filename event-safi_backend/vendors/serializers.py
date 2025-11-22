@@ -1,8 +1,14 @@
 from rest_framework import serializers
-from .models import Vendor
+from .models import Vendor, VendorPhoto
 from accounts.serializers import UserRegistrationSerializer, UserSerializer
 from accounts.models import User
 from services.models import ServiceCategory
+
+class VendorPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorPhoto
+        fields = ['id', 'image', 'caption', 'order', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 class VendorSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -11,6 +17,7 @@ class VendorSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
      )
+    gallery = VendorPhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Vendor
@@ -24,7 +31,8 @@ class VendorRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vendor
-        fields = ['user', 'business_name', 'description', 'phone_number', 'address', 'categories']
+        fields = ['user', 'business_name', 'description', 'phone_number', 'address', 'categories',
+                  'facebook_url', 'instagram_url', 'twitter_url', 'linkedin_url', 'website_url']
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
