@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Users, Award, Calendar, CheckCircle2 } from 'lucide-react';
 
 function About() {
     const [isVisible, setIsVisible] = useState(false);
@@ -262,8 +261,8 @@ function About() {
                             <div
                                 key={index}
                                 className={`group text-center p-8 rounded-3xl transition-all duration-500 cursor-pointer ${activeValue === index
-                                        ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-2xl transform scale-105'
-                                        : 'bg-white hover:shadow-xl'
+                                    ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-2xl transform scale-105'
+                                    : 'bg-white hover:shadow-xl'
                                     }`}
                                 onMouseEnter={() => setActiveValue(index)}
                             >
