@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { eventsAPI } from '../api/events';
 
 export const useEventsStore = create((set, get) => ({
     // State
@@ -14,6 +15,33 @@ export const useEventsStore = create((set, get) => ({
     setCurrentEvent: (event) => set({ currentEvent: event }),
 
     setEventTypes: (types) => set({ eventTypes: types }),
+
+    // Fetch events from API
+    fetchEvents: async () => {
+        set({ loading: true, error: null });
+        try {
+            const data = await eventsAPI.getEvents();
+            set({ events: data.results || data, loading: false });
+            return data;
+        } catch (error) {
+            console.error('Error fetching events:', error);
+            set({ error: error.message, loading: false });
+            throw error;
+        }
+    },
+
+    // Fetch event types from API
+    fetchEventTypes: async () => {
+        try {
+            const data = await eventsAPI.getEventTypes();
+            set({ eventTypes: data.results || data });
+            return data;
+        } catch (error) {
+            console.error('Error fetching event types:', error);
+            set({ error: error.message });
+            throw error;
+        }
+    },
 
     addEvent: (event) => set((state) => ({
         events: [event, ...state.events],
