@@ -57,7 +57,7 @@ const HeroSection = () => {
                             Browse Vendors
                         </button>
                     </Link>
-                    <Link to="/events">
+                    <Link to="/login">
                         <button className="group border-2 border-white/30 text-white font-semibold py-4 px-8 rounded-lg text-base hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300 flex items-center gap-2">
                             <Calendar className="w-5 h-5 group-hover:scale-110 transition-transform" />
                             Plan Your Event

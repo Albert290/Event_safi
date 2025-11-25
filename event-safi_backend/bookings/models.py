@@ -16,6 +16,7 @@ class Booking(models.Model):
         ('completed', 'Completed'),
     ], default='pending')
     agreed_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    notes = models.TextField(blank=True, help_text="Additional notes or requirements from the client")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

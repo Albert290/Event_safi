@@ -23,6 +23,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             # Check if the user is a vendor
             vendor_profile = user.vendor_profile
             return Booking.objects.filter(service__vendor=vendor_profile)
-        except user.vendor_profile.RelatedObjectDoesNotExist:
-            # The user is a regular user
+        except AttributeError:
+            # The user is a regular user (no vendor_profile)
             return Booking.objects.filter(event__user=user)

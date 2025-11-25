@@ -47,34 +47,25 @@ function Layout() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex flex-col lg:flex-row">
-        {/* Navbar - pass the state and handlers */}
         <Navbar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
-
-        {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
-          {/* Header - pass the toggle handler */}
           <Header
             onMenuClick={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
           />
-
-          {/* Page Content from Routes */}
           <main className="flex-1 p-6">
             <Outlet />
           </main>
         </div>
       </div>
-
-      {/* AI Assistant - Available globally */}
       <AIAssistant />
     </div>
   );
 }
 
-// Vendor Layout (for vendor-specific pages)
 function VendorLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -85,46 +76,37 @@ function VendorLayout() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex flex-col lg:flex-row">
-        {/* Vendor Navbar */}
         <VendorNavbar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
-
         <div className="flex-1 flex flex-col">
           <Header
             onMenuClick={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
           />
-
           <main className="flex-1 p-6">
             <Outlet />
           </main>
         </div>
       </div>
-
-      {/* AI Assistant - Available for vendors too */}
       <AIAssistant />
     </div>
   );
 }
-
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register/vendor" element={<VendorRegister />} />
 
-        {/* Home - Public Landing Page */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-
-
-        {/* Protected User Routes */}
+        {/* Protected Client Routes */}
         <Route
           path="/"
           element={
@@ -159,7 +141,6 @@ function App() {
           <Route path="profile" element={<VendorProfile />} />
           <Route path="packages" element={<VendorPackages />} />
           <Route path="analytics" element={<VendorAnalytics />} />
-          <Route path="search" element={<SearchResults />} />
         </Route>
 
         {/* 404 */}

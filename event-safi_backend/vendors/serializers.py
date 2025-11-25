@@ -10,6 +10,14 @@ class VendorPhotoSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'caption', 'order', 'created_at']
         read_only_fields = ['id', 'created_at']
 
+class ServiceSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    
+    class Meta:
+        from services.models import Service
+        model = Service
+        fields = ['id', 'name', 'description', 'price_range', 'availability_status', 'rating', 'category_name']
+
 class VendorSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     categories = serializers.SlugRelatedField(
@@ -18,6 +26,7 @@ class VendorSerializer(serializers.ModelSerializer):
         slug_field='name'
      )
     gallery = VendorPhotoSerializer(many=True, read_only=True)
+    services = ServiceSerializer(many=True, read_only=True)
 
     class Meta:
         model = Vendor

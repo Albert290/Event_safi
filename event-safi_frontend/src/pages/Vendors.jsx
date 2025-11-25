@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useVendorsStore } from '../stores/useVendorsStore';
 import { vendorsAPI } from '../api/vendors';
-import { Search, Filter, Loader2, Star, MapPin, X, CheckCircle2 } from 'lucide-react';
+import { eventsAPI } from '../api/events';
+import { Search, Filter, Loader2, Star, MapPin, X, CheckCircle2, Calendar, ArrowLeft } from 'lucide-react';
 
 function Vendors() {
     const { vendors, setVendors, categories, setCategories, loading, setLoading } = useVendorsStore();
+    const [searchParams] = useSearchParams();
+    const eventId = searchParams.get('event_id');
+    const [event, setEvent] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [minRating, setMinRating] = useState(0);
@@ -14,7 +18,19 @@ function Vendors() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+        if (eventId) {
+            fetchEventData();
+        }
+    }, [eventId]);
+
+    const fetchEventData = async () => {
+        try {
+            const eventData = await eventsAPI.getEvent(eventId);
+            setEvent(eventData);
+        } catch (err) {
+            console.error('Error fetching event:', err);
+        }
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -146,10 +162,10 @@ function Vendors() {
 
                     <div className="flex gap-2">
                         <Link
-                            to={`/vendors/${vendor.id}`}
+                            to={`/vendors/${vendor.id}${eventId ? `?event_id=${eventId}` : ''}`}
                             className="flex-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm text-center rounded-lg hover:shadow-lg hover:shadow-amber-500/30 transition-all"
                         >
-                            View Profile
+                            {eventId ? 'Book This Vendor' : 'View Profile'}
                         </Link>
                         <button className="px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors">
                             Contact
@@ -162,10 +178,40 @@ function Vendors() {
 
     return (
         <div>
+            {/* Event Context Banner */}
+            {event && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <Calendar className="w-5 h-5 text-blue-600" />
+                            <div>
+                                <p className="text-sm text-blue-600 font-medium">Booking vendors for:</p>
+                                <p className="text-lg font-semibold text-blue-900">{event.title}</p>
+                                <p className="text-sm text-blue-700">
+                                    {new Date(event.date).toLocaleDateString()} • {event.location}
+                                </p>
+                            </div>
+                        </div>
+                        <Link
+                            to={`/events/${eventId}`}
+                            className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            Back to Event
+                        </Link>
+                    </div>
+                </div>
+            )}
+
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Vendors Directory</h1>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    {event ? 'Choose Vendors for Your Event' : 'Vendors Directory'}
+                </h1>
                 <p className="text-gray-600">
-                    Discover and connect with event professionals.
+                    {event 
+                        ? 'Browse and book professional vendors for your event.'
+                        : 'Discover and connect with event professionals.'
+                    }
                 </p>
             </div>
 

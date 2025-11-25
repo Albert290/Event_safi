@@ -5,15 +5,84 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Count, Sum, Avg
 from .models import Vendor, VendorPhoto
 from .serializers import VendorSerializer, VendorRegistrationSerializer, VendorPhotoSerializer
 from accounts.serializers import UserSerializer
 from common.permissions import IsVendorOwner
+from bookings.models import Booking
+from payments.models import Payment
+from reviews.models import Review
 
 class VendorViewSet(viewsets.ModelViewSet):
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
-    permission_classes = [IsVendorOwner, IsAuthenticated]
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action in ['list', 'retrieve']:
+            # Allow anyone to view vendors
+            permission_classes = [AllowAny]
+        else:
+            # Require authentication and ownership for other actions
+            permission_classes = [IsAuthenticated, IsVendorOwner]
+        return [permission() for permission in permission_classes]
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def dashboard(self, request):
+        """Get vendor dashboard statistics"""
+        try:
+            vendor = request.user.vendor_profile
+        except AttributeError:
+            return Response({'error': 'User is not a vendor'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get bookings for this vendor
+        bookings = Booking.objects.filter(service__vendor=vendor)
+        
+        # Calculate stats
+        total_bookings = bookings.count()
+        pending_bookings = bookings.filter(status='pending').count()
+        confirmed_bookings = bookings.filter(status='confirmed').count()
+        completed_bookings = bookings.filter(status='completed').count()
+        
+        # Calculate revenue from payments
+        payments = Payment.objects.filter(booking__service__vendor=vendor, status='completed')
+        total_revenue = payments.aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Get reviews
+        reviews = Review.objects.filter(vendor=vendor)
+        total_reviews = reviews.count()
+        avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+        
+        # Get services count
+        total_services = vendor.services.filter(availability_status=True).count()
+        
+        # Recent bookings
+        recent_bookings = bookings.select_related('event', 'service').order_by('-created_at')[:5]
+        recent_bookings_data = []
+        for booking in recent_bookings:
+            recent_bookings_data.append({
+                'id': booking.id,
+                'event_title': booking.event.title,
+                'service_name': booking.service.name,
+                'status': booking.status,
+                'created_at': booking.created_at,
+                'agreed_price': booking.agreed_price
+            })
+
+        return Response({
+            'total_bookings': total_bookings,
+            'pending_bookings': pending_bookings,
+            'confirmed_bookings': confirmed_bookings,
+            'completed_bookings': completed_bookings,
+            'total_revenue': float(total_revenue),
+            'total_reviews': total_reviews,
+            'average_rating': round(float(avg_rating), 1) if avg_rating else 0,
+            'total_services': total_services,
+            'recent_bookings': recent_bookings_data
+        })
 
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_photo(self, request, pk=None):

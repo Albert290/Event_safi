@@ -40,8 +40,10 @@ export default function Login() {
 
             setAuth(userWithVendor, data.tokens);
 
-            // Redirect to the page they tried to access, or dashboard
-            const from = location.state?.from?.pathname || '/dashboard';
+            // Redirect based on user type
+            const isVendor = !!data.vendor_profile;
+            const defaultPath = isVendor ? '/vendor/dashboard' : '/dashboard';
+            const from = location.state?.from?.pathname || defaultPath;
             navigate(from, { replace: true });
         } catch (err) {
             setError(

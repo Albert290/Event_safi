@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { eventsAPI } from '../api/events';
 import { AlertCircle, Loader } from 'lucide-react';
 
 function CreateEvent() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const editId = searchParams.get('edit');
+    const isEditing = !!editId;
+    
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(isEditing);
     const [error, setError] = useState('');
     const [eventTypes, setEventTypes] = useState([]);
     const [formData, setFormData] = useState({
@@ -19,7 +24,29 @@ function CreateEvent() {
 
     useEffect(() => {
         fetchEventTypes();
-    }, []);
+        if (isEditing) {
+            fetchEventData();
+        }
+    }, [isEditing, editId]);
+
+    const fetchEventData = async () => {
+        try {
+            const event = await eventsAPI.getEvent(editId);
+            setFormData({
+                title: event.title || '',
+                description: event.description || '',
+                event_type: event.event_type || '',
+                date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
+                location: event.location || '',
+                budget: event.budget || '',
+            });
+        } catch (err) {
+            console.error('Error fetching event:', err);
+            setError('Failed to load event data');
+        } finally {
+            setInitialLoading(false);
+        }
+    };
 
     const fetchEventTypes = async () => {
         try {
@@ -57,13 +84,18 @@ function CreateEvent() {
                 status: 'planning'
             };
 
-            const response = await eventsAPI.createEvent(eventData);
+            let response;
+            if (isEditing) {
+                response = await eventsAPI.updateEvent(editId, eventData);
+            } else {
+                response = await eventsAPI.createEvent(eventData);
+            }
 
-            // Redirect to the newly created event's detail page
-            navigate(`/events/${response.id}`);
+            // Redirect to the event's detail page
+            navigate(`/events/${response.id || editId}`);
         } catch (err) {
-            console.error('Error creating event:', err);
-            setError(err.response?.data?.detail || 'Failed to create event. Please try again.');
+            console.error(`Error ${isEditing ? 'updating' : 'creating'} event:`, err);
+            setError(err.response?.data?.detail || `Failed to ${isEditing ? 'update' : 'create'} event. Please try again.`);
         } finally {
             setLoading(false);
         }
@@ -86,14 +118,22 @@ function CreateEvent() {
                 </Link>
 
                 <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Create New Event</h1>
+                    <h1 className="text-2xl font-bold mb-4">
+                        {isEditing ? 'Edit Event' : 'Create New Event'}
+                    </h1>
 
-                    {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-red-700 text-sm">{error}</p>
+                    {initialLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader className="w-8 h-8 text-blue-600 animate-spin" />
                         </div>
-                    )}
+                    ) : (
+                        <>
+                            {error && (
+                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                    <p className="text-red-700 text-sm">{error}</p>
+                                </div>
+                            )}
 
                     <form className="space-y-4" onSubmit={handleSubmit}>
                         <div>
@@ -187,14 +227,19 @@ function CreateEvent() {
                                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {loading && <Loader className="w-4 h-4 animate-spin" />}
-                                {loading ? 'Creating...' : 'Create Event'}
+                                {loading 
+                                    ? (isEditing ? 'Updating...' : 'Creating...') 
+                                    : (isEditing ? 'Update Event' : 'Create Event')
+                                }
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
+                </>
+            )}
         </div>
-    );
+    </div>
+</div>
+);
 }
 
 export default CreateEvent;
