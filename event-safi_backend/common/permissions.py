@@ -30,3 +30,23 @@ class IsOwner(permissions.BasePermission):
         if hasattr(obj, 'user'):
             return obj.user == request.user
         return False
+
+class IsBookingParticipant(permissions.BasePermission):
+    """
+    Custom permission for bookings.
+    Allows both the event owner (client) AND the vendor (service provider) to view/edit bookings.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Allow if user is the event owner (client who made the booking)
+        if hasattr(obj, 'event') and obj.event.user == request.user:
+            return True
+        
+        # Allow if user is the vendor who owns the service being booked
+        if hasattr(obj, 'service'):
+            try:
+                vendor_profile = request.user.vendor_profile
+                return obj.service.vendor == vendor_profile
+            except AttributeError:
+                pass
+        
+        return False

@@ -32,6 +32,19 @@ class VendorSerializer(serializers.ModelSerializer):
         model = Vendor
         fields = '__all__'
 
+class VendorUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating vendor profile - only includes editable fields"""
+    
+    class Meta:
+        model = Vendor
+        fields = [
+            'business_name', 'description', 'profile_picture', 'cover_photo',
+            'phone_number', 'address', 'facebook_url', 'instagram_url',
+            'twitter_url', 'linkedin_url', 'website_url'
+        ]
+        # All fields are optional for partial updates
+        extra_kwargs = {field: {'required': False} for field in fields}
+
 class VendorRegistrationSerializer(serializers.ModelSerializer):
     user = UserRegistrationSerializer()
     categories = serializers.ListField(

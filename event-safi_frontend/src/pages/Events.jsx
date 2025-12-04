@@ -23,6 +23,8 @@ function Events() {
             setEvents(eventsArray);
         } catch (err) {
             console.error('Error fetching events:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -94,8 +96,8 @@ function Events() {
                         key={tab.key}
                         onClick={() => setFilter(tab.key)}
                         className={`px-4 py-2 font-medium transition-colors ${filter === tab.key
-                                ? 'text-blue-600 border-b-2 border-blue-600'
-                                : 'text-gray-600 hover:text-gray-900'
+                            ? 'text-blue-600 border-b-2 border-blue-600'
+                            : 'text-gray-600 hover:text-gray-900'
                             }`}
                     >
                         {tab.label}

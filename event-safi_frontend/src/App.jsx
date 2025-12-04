@@ -105,6 +105,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register/vendor" element={<VendorRegister />} />
+        <Route path="settings" element={<Settings />} />
 
         {/* Protected Client Routes */}
         <Route
@@ -122,7 +123,6 @@ function App() {
           <Route path="vendors" element={<Vendors />} />
           <Route path="vendors/:id" element={<VendorDetails />} />
           <Route path="reviews" element={<Reviews />} />
-          <Route path="settings" element={<Settings />} />
           <Route path="search" element={<SearchResults />} />
         </Route>
 

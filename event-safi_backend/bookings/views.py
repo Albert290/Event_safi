@@ -2,13 +2,13 @@
 from rest_framework import viewsets
 from .models import Booking
 from .serializers import BookingSerializer
-from common.permissions import IsOwner
+from common.permissions import IsBookingParticipant
 from rest_framework.permissions import IsAuthenticated
 
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated, IsBookingParticipant]
 
     def get_queryset(self):
         """

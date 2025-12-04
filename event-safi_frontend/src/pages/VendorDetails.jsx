@@ -17,7 +17,14 @@ import {
     CheckCircle,
     Package,
     MessageSquare,
-    User
+    User,
+    Globe,
+    Facebook,
+    Instagram,
+    Twitter,
+    Linkedin,
+    X as CloseIcon,
+    Image as ImageIcon
 } from 'lucide-react';
 
 export default function VendorDetails() {
@@ -25,7 +32,7 @@ export default function VendorDetails() {
     const [searchParams] = useSearchParams();
     const eventId = searchParams.get('event_id');
     const navigate = useNavigate();
-    
+
     const [vendor, setVendor] = useState(null);
     const [event, setEvent] = useState(null);
     const [reviews, setReviews] = useState([]);
@@ -33,6 +40,8 @@ export default function VendorDetails() {
     const [error, setError] = useState('');
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedService, setSelectedService] = useState(null);
+    const [showGalleryModal, setShowGalleryModal] = useState(false);
+    const [selectedGalleryImage, setSelectedGalleryImage] = useState(null);
 
     useEffect(() => {
         fetchVendorData();
@@ -56,7 +65,7 @@ export default function VendorDetails() {
         try {
             const [vendorData, reviewsData] = await Promise.all([
                 vendorsAPI.getVendor(id),
-                reviewsAPI.getReviews().then(data => 
+                reviewsAPI.getReviews().then(data =>
                     Array.isArray(data) ? data.filter(r => r.vendor === id) : []
                 ).catch(() => [])
             ]);
@@ -118,6 +127,24 @@ export default function VendorDetails() {
                                 {new Date(event.date).toLocaleDateString()} • {event.location}
                             </p>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Cover Photo Hero Section */}
+            {vendor.cover_photo && (
+                <div className="relative h-64 md:h-80 rounded-lg overflow-hidden mb-6 shadow-lg">
+                    <img
+                        src={vendor.cover_photo}
+                        alt={`${vendor.business_name} cover`}
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <h1 className="text-4xl font-bold mb-2">{vendor.business_name}</h1>
+                        {vendor.categories && vendor.categories.length > 0 && (
+                            <p className="text-lg">{vendor.categories.join(', ')}</p>
+                        )}
                     </div>
                 </div>
             )}
@@ -195,6 +222,103 @@ export default function VendorDetails() {
                     </div>
                 </div>
             </div>
+
+            {/* Social Media Links */}
+            {(vendor.facebook_url || vendor.instagram_url || vendor.twitter_url || vendor.linkedin_url || vendor.website_url) && (
+                <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Connect With Us</h2>
+                    <div className="flex flex-wrap gap-3">
+                        {vendor.facebook_url && (
+                            <a
+                                href={vendor.facebook_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                            >
+                                <Facebook className="w-5 h-5" />
+                                Facebook
+                            </a>
+                        )}
+                        {vendor.instagram_url && (
+                            <a
+                                href={vendor.instagram_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition"
+                            >
+                                <Instagram className="w-5 h-5" />
+                                Instagram
+                            </a>
+                        )}
+                        {vendor.twitter_url && (
+                            <a
+                                href={vendor.twitter_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition"
+                            >
+                                <Twitter className="w-5 h-5" />
+                                Twitter/X
+                            </a>
+                        )}
+                        {vendor.linkedin_url && (
+                            <a
+                                href={vendor.linkedin_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
+                            >
+                                <Linkedin className="w-5 h-5" />
+                                LinkedIn
+                            </a>
+                        )}
+                        {vendor.website_url && (
+                            <a
+                                href={vendor.website_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition"
+                            >
+                                <Globe className="w-5 h-5" />
+                                Website
+                            </a>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Photo Gallery */}
+            {vendor.gallery && vendor.gallery.length > 0 && (
+                <div className="bg-white rounded-lg border border-gray-200 p-8 mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Photo Gallery</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {vendor.gallery.map((photo) => (
+                            <div
+                                key={photo.id}
+                                className="relative group cursor-pointer overflow-hidden rounded-lg aspect-square"
+                                onClick={() => {
+                                    setSelectedGalleryImage(photo);
+                                    setShowGalleryModal(true);
+                                }}
+                            >
+                                <img
+                                    src={photo.image}
+                                    alt={photo.caption || 'Portfolio image'}
+                                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                                    <ImageIcon className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                                {photo.caption && (
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {photo.caption}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Services Section */}
             <div className="bg-white rounded-lg border border-gray-200 p-8 mb-6">
@@ -287,6 +411,36 @@ export default function VendorDetails() {
                         }
                     }}
                 />
+            )}
+
+            {/* Gallery Modal */}
+            {showGalleryModal && selectedGalleryImage && (
+                <div
+                    className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+                    onClick={() => setShowGalleryModal(false)}
+                >
+                    <button
+                        onClick={() => setShowGalleryModal(false)}
+                        className="absolute top-4 right-4 text-white hover:text-gray-300 transition"
+                    >
+                        <CloseIcon className="w-8 h-8" />
+                    </button>
+                    <div
+                        className="max-w-4xl max-h-[90vh] overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <img
+                            src={selectedGalleryImage.image}
+                            alt={selectedGalleryImage.caption || 'Full size image'}
+                            className="w-full h-full object-contain"
+                        />
+                        {selectedGalleryImage.caption && (
+                            <div className="bg-white p-4 text-center">
+                                <p className="text-gray-900">{selectedGalleryImage.caption}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             )}
         </div>
     );
@@ -428,7 +582,7 @@ function BookingModal({ vendor, service, event, eventId, onClose, onSuccess }) {
                             )}
                         </button>
                     </div>
-                    
+
                     {!eventId && (
                         <p className="text-sm text-amber-600 text-center">
                             Please select an event first to make a booking

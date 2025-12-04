@@ -24,14 +24,14 @@ function EventDetails() {
         try {
             const [eventData, bookingsData, paymentsData] = await Promise.all([
                 eventsAPI.getEvent(id),
-                bookingsAPI.getBookings().then(data => 
+                bookingsAPI.getBookings().then(data =>
                     Array.isArray(data) ? data.filter(b => b.event === id) : []
                 ).catch(() => []),
-                paymentsAPI.getPayments().then(data => 
+                paymentsAPI.getPayments().then(data =>
                     Array.isArray(data) ? data.filter(p => p.event === id) : []
                 ).catch(() => [])
             ]);
-            
+
             setEvent(eventData);
             setBookings(bookingsData);
             setPayments(paymentsData);
@@ -127,13 +127,12 @@ function EventDetails() {
                         Edit Event
                     </Link>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        event.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        event.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                        'bg-yellow-100 text-yellow-800'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${event.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            event.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
+                                'bg-yellow-100 text-yellow-800'
+                        }`}>
                         {event.status?.charAt(0).toUpperCase() + event.status?.slice(1)}
                     </span>
                     {event.event_type && (
@@ -154,11 +153,10 @@ function EventDetails() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2 py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
-                                        activeTab === tab.id
+                                    className={`flex items-center gap-2 py-4 px-2 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
                                             ? 'border-blue-500 text-blue-600'
                                             : 'border-transparent text-gray-500 hover:text-gray-700'
-                                    }`}
+                                        }`}
                                 >
                                     <Icon className="w-4 h-4" />
                                     {tab.label}
@@ -202,7 +200,7 @@ function OverviewTab({ event }) {
                     {event.description || 'No description provided for this event.'}
                 </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <h4 className="font-medium text-gray-900 mb-2">Event Details</h4>
@@ -264,12 +262,11 @@ function VendorsTab({ bookings, eventId }) {
                                     <p className="text-sm text-gray-500">{booking.service?.category || 'Category'}</p>
                                 </div>
                                 <div className="text-right">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        booking.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                                        'bg-red-100 text-red-800'
-                                    }`}>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                            booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                booking.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                                    'bg-red-100 text-red-800'
+                                        }`}>
                                         {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1)}
                                     </span>
                                     {booking.agreed_price && (
@@ -295,7 +292,7 @@ function PaymentsTab({ payments, totals }) {
     return (
         <div>
             <h3 className="text-lg font-semibold mb-6">Payment Overview</h3>
-            
+
             {/* Budget Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-blue-50 p-4 rounded-lg">
@@ -351,11 +348,10 @@ function PaymentsTab({ payments, totals }) {
                                             currency: 'KES'
                                         }).format(payment.amount)}
                                     </p>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                        payment.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                        payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        'bg-red-100 text-red-800'
-                                    }`}>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${payment.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-red-100 text-red-800'
+                                        }`}>
                                         {payment.status?.charAt(0).toUpperCase() + payment.status?.slice(1)}
                                     </span>
                                 </div>

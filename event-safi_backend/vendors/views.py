@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Count, Sum, Avg
 from .models import Vendor, VendorPhoto
-from .serializers import VendorSerializer, VendorRegistrationSerializer, VendorPhotoSerializer
+from .serializers import VendorSerializer, VendorRegistrationSerializer, VendorPhotoSerializer, VendorUpdateSerializer
 from accounts.serializers import UserSerializer
 from common.permissions import IsVendorOwner
 from bookings.models import Booking
@@ -134,10 +134,13 @@ class VendorViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        serializer = VendorSerializer(vendor, data=request.data, partial=True)
+        serializer = VendorUpdateSerializer(vendor, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            # Return full vendor data with VendorSerializer
+            return Response(VendorSerializer(vendor).data)
+        # Log errors for debugging
+        print("Validation errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VendorRegistrationView(APIView):

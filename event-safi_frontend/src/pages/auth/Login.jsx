@@ -57,7 +57,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
             <div className="max-w-md w-full">
                 {/* Logo/Brand */}
                 <div className="text-center mb-8">
@@ -74,7 +74,7 @@ export default function Login() {
                     {/* Error Alert */}
                     {error && (
                         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                             <p className="text-sm text-red-800">{error}</p>
                         </div>
                     )}
@@ -124,7 +124,7 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:shadow-lg hover:shadow-amber-500/30 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-linear-to-r from-amber-500 to-amber-600 hover:shadow-lg hover:shadow-amber-500/30 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <>
@@ -150,12 +150,6 @@ export default function Login() {
                             Don't have an account?{' '}
                             <Link to="/register" className="text-amber-600 hover:text-amber-700 font-semibold">
                                 Register as User
-                            </Link>
-                        </p>
-                        <p className="text-center text-sm text-gray-600">
-                            Are you a vendor?{' '}
-                            <Link to="/register/vendor" className="text-amber-600 hover:text-amber-700 font-semibold">
-                                Register as Vendor
                             </Link>
                         </p>
                     </div>

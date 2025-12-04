@@ -45,7 +45,7 @@ export default function VendorDashboard() {
             console.log('Fetching pending bookings...');
             const bookings = await bookingsAPI.getBookings();
             console.log('Bookings received:', bookings);
-            const pending = Array.isArray(bookings) 
+            const pending = Array.isArray(bookings)
                 ? bookings.filter(b => b.status === 'pending')
                 : bookings.results?.filter(b => b.status === 'pending') || [];
             console.log('Pending bookings:', pending);
@@ -117,7 +117,7 @@ export default function VendorDashboard() {
                 <StatCard
                     icon={DollarSign}
                     label="Total Revenue"
-                    value={`KES ${stats.totalRevenue.toLocaleString()}`}
+                    value={stats.totalRevenue != null ? `KES ${stats.totalRevenue.toLocaleString()}` : 'KES 0'}
                     color="bg-green-500"
                 />
                 <StatCard
@@ -238,16 +238,15 @@ export default function VendorDashboard() {
                     <div className="space-y-4">
                         {stats.recentBookings.map((booking) => (
                             <div key={booking.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                    booking.status === 'pending' ? 'bg-yellow-100' :
-                                    booking.status === 'confirmed' ? 'bg-blue-100' :
-                                    booking.status === 'completed' ? 'bg-green-100' :
-                                    'bg-red-100'
-                                }`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${booking.status === 'pending' ? 'bg-yellow-100' :
+                                        booking.status === 'confirmed' ? 'bg-blue-100' :
+                                            booking.status === 'completed' ? 'bg-green-100' :
+                                                'bg-red-100'
+                                    }`}>
                                     {booking.status === 'pending' ? <Clock className="w-5 h-5 text-yellow-600" /> :
-                                     booking.status === 'confirmed' ? <Calendar className="w-5 h-5 text-blue-600" /> :
-                                     booking.status === 'completed' ? <Check className="w-5 h-5 text-green-600" /> :
-                                     <X className="w-5 h-5 text-red-600" />}
+                                        booking.status === 'confirmed' ? <Calendar className="w-5 h-5 text-blue-600" /> :
+                                            booking.status === 'completed' ? <Check className="w-5 h-5 text-green-600" /> :
+                                                <X className="w-5 h-5 text-red-600" />}
                                 </div>
                                 <div className="flex-1">
                                     <p className="font-medium text-gray-900">{booking.event_title}</p>
